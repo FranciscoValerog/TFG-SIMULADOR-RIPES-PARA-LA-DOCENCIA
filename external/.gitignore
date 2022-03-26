@@ -1,3 +1,0 @@
-# Ignore any build directories of the external projects,
-# if they are being built standalone.
-build-*/*

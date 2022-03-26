@@ -1,1 +1,0 @@
-create_ripes_lib(editor LINK_TO_RIPES_LIB)
