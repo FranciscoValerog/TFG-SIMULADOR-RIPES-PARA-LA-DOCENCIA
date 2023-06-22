@@ -8,6 +8,7 @@
 #include "processors/RISC-V/rv5s_no_hz/rv5s_no_hz.h"
 #include "processors/RISC-V/rv6s_dual/rv6s_dual.h"
 #include "processors/RISC-V/rvss/rvss.h"
+#include "processors/RISC-V/rv5mc/rv5mc.h"
 
 namespace Ripes {
 
@@ -24,6 +25,9 @@ namespace Ripes {
 constexpr const char rv5s_no_fw_hz_desc[] =
     "A 5-stage in-order processor with no forwarding or hazard "
     "detection/elimination." no_hz_note;
+
+constexpr const char rv5_mc_desc[] =
+    "A multi-cycle processor with five stages.";
 
 constexpr const char rv5s_no_hz_desc[] =
     "A 5-stage in-order processor with forwarding but no hazard "
@@ -60,6 +64,29 @@ ProcessorRegistry::ProcessorRegistry() {
   addProcessor(ProcInfo<vsrtl::core::RVSS<uint64_t>>(
       ProcessorID::RV64_SS, "Single-cycle processor",
       "A single cycle processor", layouts, defRegVals));
+
+  // RISC-V multi cycle
+  layouts = {{"Standard",
+              ":/layouts/RISC-V/rv5mc/rv_mc_standard_layout.json",
+              {{{0, 0}, QPointF{0.08, 0}},
+               {{0, 1}, QPointF{0.29, 0}},
+               {{0, 2}, QPointF{0.55, 0}},
+               {{0, 3}, QPointF{0.75, 0}},
+               {{0, 4}, QPointF{0.87, 0}}}},
+             {"Extended",
+              ":/layouts/RISC-V/rv5mc/rv_mc_extended_layout.json",
+              {{{0, 0}, QPointF{0.08, 0}},
+               {{0, 1}, QPointF{0.28, 0}},
+               {{0, 2}, QPointF{0.54, 0}},
+               {{0, 3}, QPointF{0.78, 0}},
+               {{0, 4}, QPointF{0.9, 0}}}}};
+  defRegVals = {{2, 0x7ffffff0}, {3, 0x10000000}};
+  addProcessor(ProcInfo<vsrtl::core::RVMC<uint32_t>>(
+      ProcessorID::RV32_5MC, "Multi-cycle processor",
+      rv5_mc_desc, layouts, defRegVals));
+  addProcessor(ProcInfo<vsrtl::core::RVMC<uint64_t>>(
+      ProcessorID::RV64_5MC, "Multi-cycle processor",
+      rv5_mc_desc, layouts, defRegVals));
 
   // RISC-V 5-stage without forwarding or hazard detection
   layouts = {
