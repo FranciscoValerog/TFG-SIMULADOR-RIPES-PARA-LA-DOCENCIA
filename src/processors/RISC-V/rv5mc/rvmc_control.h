@@ -471,6 +471,7 @@ public:
     case FSMState::EXCJE: case FSMState::EXCJNE: case FSMState::EXCJGE:
     case FSMState::EXCJLT: case FSMState::EXCJLTU: case FSMState::EXCJGEU:
     case FSMState::MEMALINS: case FSMState::WBMEMLOAD: case FSMState::EXECALL:
+    case FSMState::EXAUIP:
       return FSMState::IF;
     }
     return FSMState::IF;
