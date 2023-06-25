@@ -295,7 +295,7 @@ public:
     }
   }
   bool finished() const override {//TODO: ver como saber cuando termina el proceso
-    return m_finished || (!isExecutableAddress(pc_reg->pc_out.uValue()) && stageInfo(StageIndex{0, WB}).stage_valid);
+    return m_finished || ((!isExecutableAddress(pc_reg->pc_out.uValue()) && !isExecutableAddress(pc_reg->pc_in.uValue())) && control->do_finish_this_cycle());
 
   }
   const std::vector<StageIndex> breakpointTriggeringStages() const override {

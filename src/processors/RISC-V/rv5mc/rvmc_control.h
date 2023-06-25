@@ -30,14 +30,16 @@ Enum(FSMState,
      EXMULHSU, EXMULHU, EXDIV, EXDIVU,
      EXREM, EXREMU, EXMULW, EXDIVW,
      EXDIVUW, EXREMW, EXREMUW, EXADDW,
-     EXSUBW, EXSRLW, EXSRAW,
+     EXSUBW, EXSLLW, EXSRLW, EXSRAW,
 
 //I-Type
 //Arimethicological
      EXADDI, EXSLTI,
-     EXLTIU, EXANDI, EXORI, EXXORI,
+     EXSLTIU, EXANDI, EXORI, EXXORI,
      EXSLLI, EXSRLI, EXSRAI, EXLUI,
-     EXAUIP, EXADDIW, EXSLLIW, EXSRAIW,
+     EXAUIP, EXADDIW, EXSLLIW, EXSRLIW,
+     EXSRAIW,
+
 //Ecall
      EXECALL,
 //Memory load
@@ -134,7 +136,8 @@ public:
 
   static VSRTL_VT_U do_reg_do_write_ctrl(const VSRTL_VT_U& state) {
     switch (state) {
-    case FSMState::EXJAL: case FSMState::MEMJALR: case FSMState::MEMALINS: case FSMState::EXAUIP:
+    case FSMState::EXJAL: case FSMState::MEMJALR:
+    case FSMState::MEMALINS: case FSMState::EXAUIP:
     case FSMState::WBMEMLOAD:
       return 1;
     default:
@@ -163,13 +166,14 @@ public:
     case FSMState::EXCJLT: case FSMState::EXCJLTU: case FSMState::EXCJGEU: case FSMState::EXADD:
     case FSMState::EXSUB: case FSMState::EXSLT: case FSMState::EXSLTU: case FSMState::EXAND:
     case FSMState::EXOR: case FSMState::EXXOR: case FSMState::EXSLL: case FSMState::EXSRL:
-    case FSMState::EXSRA: case FSMState::EXADDI: case FSMState::EXSLTI: case FSMState::EXLTIU:
+    case FSMState::EXSRA: case FSMState::EXADDI: case FSMState::EXSLTI: case FSMState::EXSLTIU:
     case FSMState::EXANDI: case FSMState::EXORI: case FSMState::EXXORI: case FSMState::EXSLLI:
     case FSMState::EXSRLI: case FSMState::EXSRAI: case FSMState::EXLUI: case FSMState::EXMUL:
     case FSMState::EXMULH: case FSMState::EXMULHSU: case FSMState::EXMULHU: case FSMState::EXDIV:
     case FSMState::EXDIVU: case FSMState::EXREM: case FSMState::EXREMU: case FSMState::EXMULW:
     case FSMState::EXDIVW: case FSMState::EXDIVUW: case FSMState::EXREMW: case FSMState::EXREMUW:
-    case FSMState::EXADDW: case FSMState::EXSUBW: case FSMState::EXSRLW: case FSMState::EXSRAW:
+case FSMState::EXADDW: case FSMState::EXSUBW: case FSMState::EXSLLW: case FSMState::EXSRLW:
+case FSMState::EXSRLIW: case FSMState::EXSRAW:
     case FSMState::EXADDIW: case FSMState::EXSLLIW: case FSMState::EXSRAIW: case FSMState::EXMEMOP:
     default:
       return AluSrc1::REG1;
@@ -181,11 +185,11 @@ public:
     case FSMState::IF:
       return AluSrc2MC::INPC;
     case FSMState::ID: case FSMState::EXJALR: case FSMState::EXADDI:
-    case FSMState::EXSLTI: case FSMState::EXLTIU: case FSMState::EXANDI:
+    case FSMState::EXSLTI: case FSMState::EXSLTIU: case FSMState::EXANDI:
     case FSMState::EXORI: case FSMState::EXXORI: case FSMState::EXSLLI:
     case FSMState::EXSRLI: case FSMState::EXSRAI: case FSMState::EXLUI:
     case FSMState::EXADDIW: case FSMState::EXSLLIW: case FSMState::EXSRAIW:
-    case FSMState::EXMEMOP:
+    case FSMState::EXMEMOP: case FSMState::EXSRLIW:
       return AluSrc2MC::IMM;
     case FSMState::EXCJE: case FSMState::EXCJNE: case FSMState::EXCJGE:
     case FSMState::EXCJLT: case FSMState::EXCJLTU: case FSMState::EXCJGEU:
@@ -197,7 +201,8 @@ public:
     case FSMState::EXDIVU: case FSMState::EXREM: case FSMState::EXREMU:
     case FSMState::EXMULW: case FSMState::EXDIVW: case FSMState::EXDIVUW:
     case FSMState::EXREMW: case FSMState::EXREMUW: case FSMState::EXADDW:
-    case FSMState::EXSUBW: case FSMState::EXSRLW: case FSMState::EXSRAW:
+case FSMState::EXSUBW: case FSMState::EXSLLW: case FSMState::EXSRLW:
+    case FSMState::EXSRAW:
     default:
       return AluSrc2MC::REG2;
     }
@@ -213,7 +218,7 @@ public:
       return ALUOp::SUB;
     case FSMState::EXSLT: case FSMState::EXSLTI:
       return ALUOp::LT;
-    case FSMState::EXSLTU: case FSMState::EXLTIU:
+    case FSMState::EXSLTU: case FSMState::EXSLTIU:
       return ALUOp::LTU;
     case FSMState::EXAND: case FSMState::EXANDI:
       return ALUOp::AND;
@@ -260,7 +265,10 @@ public:
     case FSMState::EXSUBW:
       return ALUOp::SUBW;
     case FSMState::EXSRLW:
+    case FSMState::EXSRLIW:
       return ALUOp::SRLW;
+case FSMState::EXSLLW:
+return ALUOp::SLW;
     case FSMState::EXSRAW:
       return ALUOp::SRAW;
     case FSMState::EXADDIW:
@@ -275,7 +283,8 @@ public:
 
   static VSRTL_VT_U do_do_mem_write_ctrl(const VSRTL_VT_U& opc) {
     switch(opc) {
-    case RVInstr::SB: case RVInstr::SH: case RVInstr::SW: case RVInstr::SD:
+    case FSMState::MEMSB: case FSMState::MEMSH:
+    case FSMState::MEMSW: case FSMState::MEMSD:
       return 1;
     default: return 0;
     }
@@ -325,7 +334,7 @@ public:
     case RVInstr::SLTI:
       return FSMState::EXSLTI;
     case RVInstr::SLTIU:
-      return FSMState::EXLTIU;
+      return FSMState::EXSLTIU;
     case RVInstr::ANDI:
       return FSMState::EXANDI;
     case RVInstr::ORI:
@@ -372,8 +381,12 @@ public:
       return FSMState::EXADDW;
     case RVInstr::SUBW:
       return FSMState::EXSUBW;
+case RVInstr::SLLW:
+return FSMState::EXSLLW;
     case RVInstr::SRLW:
       return FSMState::EXSRLW;
+    case RVInstr::SRLIW:
+      return FSMState::EXSRLIW;
     case RVInstr::SRAW:
       return FSMState::EXSRAW;
     case RVInstr::ADDIW:
@@ -441,7 +454,7 @@ public:
     case FSMState::EXXOR: case FSMState::EXSLL:
     case FSMState::EXSRL: case FSMState::EXSRA:
     case FSMState::EXADDI: case FSMState::EXSLTI:
-    case FSMState::EXLTIU: case FSMState::EXANDI:
+    case FSMState::EXSLTIU: case FSMState::EXANDI:
     case FSMState::EXORI: case FSMState::EXXORI:
     case FSMState::EXSLLI: case FSMState::EXSRLI:
     case FSMState::EXSRAI: case FSMState::EXLUI:
@@ -453,6 +466,7 @@ public:
     case FSMState::EXDIVUW: case FSMState::EXREMW:
     case FSMState::EXREMUW: case FSMState::EXADDW:
     case FSMState::EXSUBW: case FSMState::EXSRLW:
+case FSMState::EXSRLIW: case FSMState::EXSLLW:
     case FSMState::EXSRAW: case FSMState::EXADDIW:
     case FSMState::EXSLLIW: case FSMState::EXSRAIW:
       return FSMState::MEMALINS;
@@ -463,15 +477,14 @@ public:
     case FSMState::MEMLB: case FSMState::MEMLH:
     case FSMState::MEMLW: case FSMState::MEMLBU:
     case FSMState::MEMLHU: case FSMState::MEMLWU:
-    case FSMState::MEMLD: case FSMState::MEMSB:
-    case FSMState::MEMSH: case FSMState::MEMSW:
-    case FSMState::MEMSD:
+    case FSMState::MEMLD:
       return FSMState::WBMEMLOAD;
     case FSMState::WB: case FSMState::EXJAL: case FSMState::MEMJALR:
     case FSMState::EXCJE: case FSMState::EXCJNE: case FSMState::EXCJGE:
     case FSMState::EXCJLT: case FSMState::EXCJLTU: case FSMState::EXCJGEU:
     case FSMState::MEMALINS: case FSMState::WBMEMLOAD: case FSMState::EXECALL:
-    case FSMState::EXAUIP:
+    case FSMState::MEMSB: case FSMState::MEMSH: case FSMState::MEMSW:
+    case FSMState::MEMSD: case FSMState::EXAUIP:
       return FSMState::IF;
     }
     return FSMState::IF;
@@ -506,6 +519,7 @@ public:
     case FSMState::MEMSB: case FSMState::MEMSH:
     case FSMState::MEMSW: case FSMState::MEMSD:
     case FSMState::WB: case FSMState::WBMEMLOAD:
+    case FSMState::EXECALL:
       return 1;
     default:
       return 0;
@@ -537,6 +551,7 @@ public:
     case FSMState::MEMLB: case FSMState::MEMLH:
     case FSMState::MEMLW: case FSMState::MEMLBU:
     case FSMState::MEMLHU: case FSMState::MEMLWU:
+    case FSMState::MEMLD:
       return 1;
     default:
       return 0;
@@ -562,6 +577,7 @@ public:
     case FSMState::MEMSB: case FSMState::MEMSH:
     case FSMState::MEMSW: case FSMState::MEMSD:
     case FSMState::WB: case FSMState::WBMEMLOAD:
+    case FSMState::EXECALL:
       return true;
     default:
       return false;
@@ -581,7 +597,7 @@ public:
     alu_op1_ctrl << [=] { return do_alu_op1_ctrl(stateIntPort.uValue()); };
     alu_op2_ctrl << [=] { return do_alu_op2_ctrl( stateIntPort.uValue()); };
     alu_ctrl << [=] { return do_alu_ctrl( stateIntPort.uValue()); };
-    mem_do_write_ctrl << [=] { return do_do_mem_write_ctrl(opcode.uValue()); };
+    mem_do_write_ctrl << [=] { return do_do_mem_write_ctrl(stateIntPort.uValue()); };
 
     RIWrite << [=] { return do_RIWrite( stateIntPort.uValue());};
 

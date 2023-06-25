@@ -14,8 +14,8 @@ using namespace Ripes;
 template <unsigned XLEN>
 class RVMCALU : public Component {
 private:
-  int32_t carry_overflow32 = 2147483648; //2^(32-1)
-  int64_t carry_overflow64 = 9223372036854775808; //2^(64-1)
+  long unsigned int carry_overflow32 = 2147483648; //2^(32-1)
+  unsigned long int carry_overflow64 = 9223372036854775808; //2^(64-1)
 public:
   SetGraphicsType(ALU);
 
@@ -180,10 +180,7 @@ public:
           if((op1.uValue() + op2.uValue()) > carry_overflow64) return 1;
         return 0;
       case ALUOp::SUB:
-        if(XLEN == 32)
-          if((op1.uValue() - op2.uValue()) > carry_overflow32) return 1;
-        if(XLEN == 64)
-          if((op1.uValue() - op2.uValue()) > carry_overflow64) return 1;
+          if((op1.uValue() < op2.uValue())) return 1;
         return 0;
       default:
         return 0;
