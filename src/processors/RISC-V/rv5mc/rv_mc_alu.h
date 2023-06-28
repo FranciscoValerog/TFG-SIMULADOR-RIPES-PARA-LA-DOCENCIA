@@ -180,7 +180,7 @@ public:
           if((op1.uValue() + op2.uValue()) > carry_overflow64) return 1;
         return 0;
       case ALUOp::SUB:
-          if((op1.uValue() < op2.uValue())) return 1;
+          if(op1.uValue() < op2.uValue()) return 1;
         return 0;
       default:
         return 0;

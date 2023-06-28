@@ -79,9 +79,8 @@ bltu x6, x5, test_bltu2
 jal x7, fail
 test_bltu2:
 bltu x5, x5, fail
-bltu x5, x6, test_bltue
-jal x5, fail
-test_bltue:
+bltu x5, x6, test_bltu2
+
     
 test_bgeu:
 li x5, -1

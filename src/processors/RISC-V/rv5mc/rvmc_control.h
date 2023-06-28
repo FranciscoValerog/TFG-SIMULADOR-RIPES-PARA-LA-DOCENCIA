@@ -72,7 +72,7 @@ class RVMCControl : public Component {
 public:
   /* clang-format off */
 
-  static CompOp do_comp_ctrl(const VSRTL_VT_U& opc) {//Tener todo el tiempo calculado, esto no modifica registro
+  static CompOp do_comp_ctrl(const VSRTL_VT_U& opc) {
     switch(opc){
     case RVInstr::BEQ: return CompOp::EQ;
     case RVInstr::BNE: return CompOp::NE;
@@ -529,8 +529,6 @@ case FSMState::EXSRLIW: case FSMState::EXSLLW:
   static VSRTL_VT_U do_pc_out_scr_ctrl (const VSRTL_VT_U& state) {
     switch (state) {
     case FSMState::IF: case FSMState::EXJAL: case FSMState::MEMJALR:
-    case FSMState::EXCJE: case FSMState::EXCJNE: case FSMState::EXCJGE:
-    case FSMState::EXCJLT: case FSMState::EXCJLTU: case FSMState::EXCJGEU:
       return PCOutscr::PC;
     default:
       return PCOutscr::PCOld;

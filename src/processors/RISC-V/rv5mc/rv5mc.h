@@ -221,7 +221,7 @@ public:
 
   // Ripes interface compliance
   const ProcessorStructure &structure() const override { return m_structure; }
-  unsigned int getPcForStage(StageIndex stage) const override { //TODO: modificar para indicar bien los estados internos del proceso
+  unsigned int getPcForStage(StageIndex stage) const override {
     switch (stage.index()) {
     case EX: case MEM:
       return pc_old_reg->pc_out.uValue();
@@ -231,7 +231,7 @@ public:
   }
   AInt nextFetchedAddress() const override {
     return pc_src->out.uValue();
-  } //TODO: Cambiar
+  }
   QString stageName(StageIndex stage) const override {
     // clang-format off
         switch (stage.index()) {
@@ -294,7 +294,7 @@ public:
       m_finishInNextCycle = true;
     }
   }
-  bool finished() const override {//TODO: ver como saber cuando termina el proceso
+  bool finished() const override {
     return m_finished || ((!isExecutableAddress(pc_reg->pc_out.uValue()) && !isExecutableAddress(pc_reg->pc_in.uValue())) && control->do_finish_this_cycle());
 
   }
@@ -315,10 +315,10 @@ public:
     setSynchronousValue(registerFile->_wr_mem, i, v);
   }
 
-  void clockProcessor() override {//TODO modificar termiando de instrucciones
+  void clockProcessor() override {
     // Single cycle processor; 1 instruction retired per cycle!
     if (control->do_finish_this_cycle())
-      m_instructionsRetired++; //TODO Arreglar
+      m_instructionsRetired++;
 
 
     // m_finishInNextCycle may be set during Design::clock(). Store the value
@@ -331,7 +331,7 @@ public:
     }
   }
 
-  void reverse() override {//TODO: marcha atras cambiar calculo de instrucciones retiradas
+  void reverse() override {
     if(control->stateIntPort.uValue()==FSMState::IF) m_instructionsRetired--;
 
     Design::reverse();
@@ -359,11 +359,6 @@ public:
   const std::set<RegisterFileType> registerFiles() const override {
     std::set<RegisterFileType> rfs;
     rfs.insert(RegisterFileType::GPR);
-
-    // @TODO: uncomment when enabling floating-point support
-    // if (implementsISA()->extensionEnabled("F")) {
-    //     rfs.insert(RegisterFileType::Float);
-    // }
     return rfs;
   }
 
@@ -371,7 +366,7 @@ private:
   bool m_finishInNextCycle = false;
   bool m_finished = false;
   std::shared_ptr<ISAInfoBase> m_enabledISA;
-  ProcessorStructure m_structure = {{0, 5}};//TODO Mirar layaut
+  ProcessorStructure m_structure = {{0, 5}};
 };
 
 } // namespace core
